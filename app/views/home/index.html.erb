@@ -1,3 +1,4 @@
+<!-- user & sign out -->
 <div id="container">
     <div id="header">
         <ul>
@@ -9,13 +10,18 @@
     </div>
 </div>
 
-
-
+<!-- search box -->
 <div id="content">
     <input id="pac-input" class="controls" type="text" placeholder="Search Box">        
     <div id="map"></div>
 </div>
+
+<!-- timeline -->
 <div id="sidebar">
+    <script>
+        var lat=37;
+        var lng=127;
+    </script>
     <% @memos.each_with_index do |p ,i| %>
         <%=p.shigan%>.<br>title: <%=p.title%><br>
         content: <%=p.content%><br>
@@ -38,6 +44,7 @@
     <% end %>
 </div>
 
+<!-- JEONBYULJUN Corp.-->
 <div id="footer">
 <adress>
     © 
@@ -47,54 +54,97 @@
 </adress>
 </div>
 
+
+<!--infobubble style-->
+<style>
+    body {
+        font-size: 83%;
+    }
+    body, input, textarea {
+        font-family: arial, sans-serif;
+    }
+    #styles, #add-tab {
+        float: left;
+        margin-top: 10px;
+        width: 400px;
+    }
+    #styles label,
+    #add-tab label {
+        display: inline-block;
+        width: 130px;
+    }
+    .phoney {
+        background: -webkit-gradient(linear,left top,left bottom,color-stop(0, rgb(112,112,112)),color-stop(0.51, rgb(94,94,94)),color-stop(0.52, rgb(57,57,57)));
+        background: -moz-linear-gradient(center top,rgb(112,112,112) 0%,rgb(94,94,94) 51%,rgb(57,57,57) 52%);
+    }
+    .phoneytext {
+        text-shadow: 0 -1px 0 #000;
+        color: #fff;
+        font-family: Helvetica Neue, Helvetica, arial;
+        font-size: 16px;
+        line-height: 25px;
+        padding: 4px 45px 4px 15px;
+        font-weight: bold;
+        background: url(../images/arrow.png) 95% 50% no-repeat;
+    }
+    .phoneytab {
+        text-shadow: 0 -1px 0 #000;
+        color: #fff;
+        font-family: Helvetica Neue, Helvetica, arial;
+        font-size: 18px;
+        background: rgb(112,112,112) !important;
+    }
+</style>
+
+<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2xWsRsM--vAOE_I9dv-ljLh-nO6IU0pU&signed_in=false&libraries=places&callback=initMap"></script>
+-->
+
+<!-- Main Map FUNCTION -->
 <script>
+    var temp = 1;
+    function handleClick(type){
+        temp = type.value;
+    }
+    function abling(){
+        document.getElementById('sum').disabled = false;
+    }
 
-var temp = 1;
-function handleClick(type){
-    temp = type.value;
-}
-function abling(){
-    document.getElementById('sum').disabled = false;
-}
+    // This example displays a marker at the center of Australia.
+    // When the user clicks the marker, an info window opens.
+    var mapCanvas = document.getElementById('map');
 
-// This example displays a marker at the center of Australia.
-// When the user clicks the marker, an info window opens.
-var mapCanvas = document.getElementById('map');
-
-function initMap() {
+    function initMap() {
     
-    mcOptions = {styles: [{
-                    height: 45,
-                    url: "c1.jpg",
-                    width: 45
-                },
-                {
-                    height: 55,
-                    url: "c2.jpg",
-                    width: 55
-                },
-                {
-                    height: 65,
-                    url: "c3.jpg",
-                    width: 65
-                },
-                {
-                    height: 75,
-                    url: "c4.jpg",
-                    width: 75
-                },
-                {
-                    height: 85,
-                    url: "c5.jpg",
-                    width: 85
-                }]};
-    
-    
+        mcOptions = {styles: [{
+            height: 45,
+            url: "c1.jpg",
+            width: 45
+        },
+        {
+            height: 55,
+            url: "c2.jpg",
+            width: 55
+        },
+        {
+            height: 65,
+            url: "c3.jpg",
+            width: 65
+        },
+        {
+            height: 75,
+            url: "c4.jpg",
+            width: 75
+        },
+        {
+            height: 85,
+            url: "c5.jpg",
+            width: 85
+    }]};
 
     var mapOptions = {
-      center: new google.maps.LatLng(lat, lng),
-      zoom: 4,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+        center: new google.maps.LatLng(lat, lng),
+        zoom: 4,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     var map = new google.maps.Map(mapCanvas, mapOptions);
 
@@ -115,40 +165,41 @@ function initMap() {
     
         if (places.length == 0) {
           return;
-        }
+    }
     
 
+    // For each place, get the icon, name and location.
+    var bounds = new google.maps.LatLngBounds();
     
-        // For each place, get the icon, name and location.
-        var bounds = new google.maps.LatLngBounds();
-        places.forEach(function(place) {
-          var icon = {
-            url: place.icon,
-            size: new google.maps.Size(71, 71),
-            origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(17, 34),
-            scaledSize: new google.maps.Size(25, 25)
-          };
+    places.forEach(function(place) {
+    var icon = {
+        url: place.icon,
+        size: new google.maps.Size(71, 71),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        scaledSize: new google.maps.Size(25, 25)
+    };
     
-          // Create a marker for each place.
-          new google.maps.Marker({
-            map: map,
-            icon: icon,
-            title: place.name,
-            position: place.geometry.location
-          });
-    
-          if (place.geometry.viewport) {
-            // Only geocodes have viewport.
-            bounds.union(place.geometry.viewport);
-          } else {
-            bounds.extend(place.geometry.location);
-          }
-        });
-        map.fitBounds(bounds);
+    // Create a marker for each place.
+    new google.maps.Marker({
+        map: map,
+        icon: icon,
+        title: place.name,
+        position: place.geometry.location
     });
     
-
+    if (place.geometry.viewport) {
+        // Only geocodes have viewport.
+        bounds.union(place.geometry.viewport);
+    } else {
+           bounds.extend(place.geometry.location);
+    }
+    });
+    map.fitBounds(bounds);
+    });
+    
+    
+    // view icons
     <% @memos.each_with_index do |p ,i| %>
         if(<%=p.button%> == 1){
             var images = 'image.png';
@@ -166,9 +217,6 @@ function initMap() {
             animation: google.maps.Animation.DROP,
         });
         
-
-
-
         (function(marker){
 
             var tt = "<%=p.title%>"
@@ -176,7 +224,7 @@ function initMap() {
             var ttr = tt.replace(/&lt;br&gt;/g,"\r\n")
             var tcr = tc.replace(/&lt;br&gt;/g,"\r\n")
             var contentString2 = 
-            '<div id="infowindow">'+
+            //'<div id="infoBubble">'+
             '<p class="temp">Title:</p>'+
             '<div id="wrapper" class="container">'+
             ttr +
@@ -192,29 +240,34 @@ function initMap() {
             '<%=form_tag '/edit', method:'post' do%>'+
             '<input type="hidden" name="id" value='+
             '<%=p.id%>'+
-            '><input type="submit" value="Edit!" class="btn btn-success"><%end%>'+
-            '</div>';
-            
-            var infowindow = new google.maps.InfoWindow({
-                content: contentString2
+            '><input type="submit" value="Edit!" class="btn btn-success"><%end%>';
+           // '</div>';
+             
+            infoBubble = new InfoBubble({
+                maxWidth: 350
             });
-            google.maps.event.addListener(infowindow, 'closeclick', function(){
+            
+            infoBubble.addTab('your place', contentString2);
+            google.maps.event.addListener(infoBubble, 'closeclick', function(){
                 marker.setAnimation(null);
             });
             google.maps.event.addListener(marker, 'click', function(){
-                infowindow.open(map,marker);
+                infoBubble.open(map,marker);
                 marker.setAnimation(google.maps.Animation.BOUNCE);   
             })
-
-
         })(marker);
         markers.push(marker);
     <% end %>
+    
     markerclusterer = new MarkerClusterer(map, markers, mcOptions);
-    var infowindowot = new google.maps.InfoWindow({});
+    
+    //var infowindowot = new google.maps.InfoWindow({});
+    
     var markertemp = [];
+    
+    
     google.maps.event.addListener(map, 'rightclick', function(event) {
-
+        
         for(var i=0; i<markertemp.length; i++){
             markertemp[i].setMap(null);
         }
@@ -231,13 +284,13 @@ function initMap() {
         
         startLocation = event.latLng;
         var mark = new google.maps.Marker({
-          position: startLocation,
-          map: map
+            position: startLocation,
+            map: map
         });
         //mark.setIcon(images);
         mark.setAnimation(google.maps.Animation.BOUNCE);
 
-        var contentString = '<div id="infobox">'+
+        var contentString = //'<div id="infoBubble2">'+
                             '<div class="title"><h1>MY TRIP</h1></div>'+
                             '<%=form_tag '/make', method:'post' do %><div class="form-group"><label for="comment">Title:</label><textarea name="tit" class="form-control" row="1"></textarea></div><div class="form-group"><label for="comment">Content:</label><textarea name="con" class="form-control" row="4"></textarea></div>'+
                             '<div class="btn-group">'+
@@ -258,28 +311,132 @@ function initMap() {
                             startLocation.lng()+
                             '>'+
                             '<br>'+
-                            '<input id="sum" type="submit" class="btn btn-success" disabled><% end %></div>';
-                            
-
-
-        infowindowot.setContent(contentString);
-
-        google.maps.event.addListener(infowindowot, 'closeclick', function(){
-            mark.setMap(null);
-            
+                            '<input id="sum" type="submit" class="btn btn-success" disabled><% end %>';
+                            //'</div>';
+        
+        infoBubble1 = new InfoBubble({
+            maxWidth: 350,
+            backgroundColor: 'rgb(200,255,255)',
+            borderColor: '#2c2c2c',
+            shadowStyle: 2
         });
+        /*infoBubble2 = new InfoBubble({
+            map: map,
+            content: contentString,
+            position: new google.maps.LatLng(startLocation.lat(), startLocation.lng()),
+            shadowStyle: 1,
+            padding: 0,
+            backgroundColor: 'rgb(57,57,57)',
+            borderRadius: 4,
+            arrowSize: 10,
+            borderWidth: 1,
+            borderColor: '#2c2c2c',
+            disableAutoPan: true,
+            hideCloseButton: true,
+            arrowPosition: 30,
+            backgroundClassName: 'phoney',
+            arrowStyle: 2
+        });*/
 
-        infowindowot.open(map, mark, contentString);
+        google.maps.event.addListener(infoBubble1, 'closeclick', function(){
+            mark.setMap(null);
+        });
+        
+        infoBubble1.addTab('add your place', contentString)
+        infoBubble1.open(map, mark);
+        //infoBubble2.open(map, mark);
         markertemp.push(mark);
         
     });
+    
+    // infobubble function
+    
+    google.maps.event.addDomListener(document.getElementById('update'),
+        'click', updateStyles);
+    google.maps.event.addDomListener(document.getElementById('add'),
+        'click', addTab);
+    google.maps.event.addDomListener(document.getElementById('update-tab'),
+        'click', updateTab);
+    google.maps.event.addDomListener(document.getElementById('remove'),
+        'click', removeTab);
+    google.maps.event.addDomListener(document.getElementById('open'),
+        'click', function() {
+        infoBubble1.open();
+    });
+    google.maps.event.addDomListener(document.getElementById('close'),
+        'click', function() {
+        infoBubble1.close();
+    });
+    
+    google.maps.event.addDomListener(window, 'load', init);
+    
+    function updateStyles() {
+        var shadowStyle = document.getElementById('shadowstyle').value;
+        infoBubble.setShadowStyle(shadowStyle);
+        var padding = document.getElementById('padding').value;
+        infoBubble.setPadding(padding);
+        var borderRadius = document.getElementById('borderRadius').value;
+        infoBubble.setBorderRadius(borderRadius);
+        var borderWidth = document.getElementById('borderWidth').value;
+        infoBubble.setBorderWidth(borderWidth);
+        var borderColor = document.getElementById('borderColor').value;
+        infoBubble.setBorderColor(borderColor);
+        var backgroundColor = document.getElementById('backgroundColor').value;
+        infoBubble.setBackgroundColor(backgroundColor);
+        var maxWidth = document.getElementById('maxWidth').value;
+        infoBubble.setMaxWidth(maxWidth);
+        var maxHeight = document.getElementById('maxHeight').value;
+        infoBubble.setMaxHeight(maxHeight);
+        var minWidth = document.getElementById('minWidth').value;
+        infoBubble.setMinWidth(minWidth);
+        var minHeight = document.getElementById('minHeight').value;
+        infoBubble.setMinHeight(minHeight);
+        var arrowSize = document.getElementById('arrowSize').value;
+        infoBubble.setArrowSize(arrowSize);
+        var arrowPosition = document.getElementById('arrowPosition').value;
+        infoBubble.setArrowPosition(arrowPosition);
+        var arrowStyle = document.getElementById('arrowStyle').value;
+        infoBubble.setArrowStyle(arrowStyle);
+        var closeSrc = document.getElementById('closeSrc').value;
+        infoBubble.setCloseSrc(closeSrc);
+    }
+    function addTab() {
+        var title = document.getElementById('tab-title').value;
+        var content = document.getElementById('tab-content').value;
+        if (title !== '' && content !== '') {
+            infoBubble.addTab(title, content);
+        }
+    }
+    function updateTab() {
+        var index = document.getElementById('tab-index-update').value;
+        var title = document.getElementById('tab-title-update').value;
+        var content = document.getElementById('tab-content-update').value;
+        if (index) {
+            infoBubble.updateTab(index, title, content);
+        }
+    }
+    function removeTab() {
+        var index = document.getElementById('tab-index').value;
+        infoBubble.removeTab(index);
+    }
+    
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-12846745-20']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
 
-
-
+    var script = '<script src="../src/infobubble';
+    if (document.location.search.indexOf('compiled') !== -1) {
+        script += '-compiled';
+    }
+    script += '.js"><' + '/script>';
+    document.write(script);
 }
 
 </script>
-
-
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2xWsRsM--vAOE_I9dv-ljLh-nO6IU0pU&signed_in=false&libraries=places&callback=initMap"></script>

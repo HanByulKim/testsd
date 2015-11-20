@@ -1,0 +1,259 @@
+<div id="container">
+    <div id="header">
+        <ul>
+            <button href="#"> <%= current_user.email %> </button>
+        </ul>
+        <ul>
+            <a href="/users/sign_out" data-method="delete"> Sign Out </a>
+        </ul>
+    </div>
+</div>
+
+
+
+<div id="content">
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">        
+    <div id="map"></div>
+</div>
+<div id="sidebar">
+    <% @memos.each_with_index do |p ,i| %>
+        <%=p.shigan%>.<br>title: <%=p.title%><br>
+        content: <%=p.content%><br>
+        
+        <%=form_tag '/goto', method:'post' do %>
+            <input type="hidden" name="latitude" value=<%=p.lat%>>
+            <input type="hidden" name="longitude" value=<%=p.lng%>>
+            <input type="submit" value="이곳으로 가기">
+        <% end %>
+        ============================================================
+        <br>
+        <script>
+            var lat=<%=@lat%>;
+            var lng=<%=@lng%>;
+            if (lat==37 && lng==127){
+                lat=<%=@memos.last.lat%>;
+                lng=<%=@memos.last.lng%>;
+            }            
+        </script>
+    <% end %>
+</div>
+
+<div id="footer">
+<adress>
+    © 
+    <strong>
+        <a target="_blank">JEONBYULJUN Corp.</a>
+    </strong>
+</adress>
+</div>
+
+<script>
+var temp = 1;
+function handleClick(type){
+    temp = type.value;
+}
+function abling(){
+    document.getElementById('sum').disabled = false;
+}
+// This example displays a marker at the center of Australia.
+// When the user clicks the marker, an info window opens.
+var mapCanvas = document.getElementById('map');
+function initMap() {
+    
+    mcOptions = {styles: [{
+                    height: 45,
+                    url: "c1.jpg",
+                    width: 45
+                },
+                {
+                    height: 55,
+                    url: "c2.jpg",
+                    width: 55
+                },
+                {
+                    height: 65,
+                    url: "c3.jpg",
+                    width: 65
+                },
+                {
+                    height: 75,
+                    url: "c4.jpg",
+                    width: 75
+                },
+                {
+                    height: 85,
+                    url: "c5.jpg",
+                    width: 85
+                }]};
+    
+    
+    var mapOptions = {
+      center: new google.maps.LatLng(lat, lng),
+      zoom: 4,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(mapCanvas, mapOptions);
+    var input = document.getElementById('pac-input');
+    var searchBox = new google.maps.places.SearchBox(input);
+    var markerclusterer;
+    var markers = [];
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+    
+    map.addListener('bounds_changed', function() {
+        searchBox.setBounds(map.getBounds());
+    });
+    
+    searchBox.addListener('places_changed', function() {
+        var places = searchBox.getPlaces();
+    
+        if (places.length == 0) {
+          return;
+        }
+    
+    
+        // For each place, get the icon, name and location.
+        var bounds = new google.maps.LatLngBounds();
+        places.forEach(function(place) {
+          var icon = {
+            url: place.icon,
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25)
+          };
+    
+          // Create a marker for each place.
+          new google.maps.Marker({
+            map: map,
+            icon: icon,
+            title: place.name,
+            position: place.geometry.location
+          });
+    
+          if (place.geometry.viewport) {
+            // Only geocodes have viewport.
+            bounds.union(place.geometry.viewport);
+          } else {
+            bounds.extend(place.geometry.location);
+          }
+        });
+        map.fitBounds(bounds);
+    });
+    
+    <% @memos.each_with_index do |p ,i| %>
+        if(<%=p.button%> == 1){
+            var images = 'image.png';
+        }
+        else if(<%=p.button%> == 2){
+            var images = 'images2.jpg';
+        }
+        else{
+            var images = 'images3.jpg';
+        }
+        marker = new google.maps.Marker({
+            map: map,
+            icon: images,
+            position: {lat: <%=p.lat%>, lng: <%=p.lng%>},
+            animation: google.maps.Animation.DROP,
+        });
+        
+        (function(marker){
+            var tt = "<%=p.title%>"
+            var tc = "<%=p.content%>"
+            var ttr = tt.replace(/&lt;br&gt;/g,"\r\n")
+            var tcr = tc.replace(/&lt;br&gt;/g,"\r\n")
+            var contentString2 = 
+            '<div id="infowindow">'+
+            '<p class="temp">Title:</p>'+
+            '<div id="wrapper" class="container">'+
+            ttr +
+             '</div>'+
+            '<p class="temp">Content:</p>'+
+            '<div id="wrapper" class="container">'+
+            tcr +
+            '</div>'+
+            '<%=form_tag '/delete', method:'post' do %>'+
+            '<input type="hidden" name="id" value='+
+            '<%=p.id%>'+
+            '><input type="submit" value="Delete!" class="btn btn-success"><% end %>'+
+            '<%=form_tag '/edit', method:'post' do%>'+
+            '<input type="hidden" name="id" value='+
+            '<%=p.id%>'+
+            '><input type="submit" value="Edit!" class="btn btn-success"><%end%>'+
+            '</div>';
+            
+            var infowindow = new google.maps.InfoWindow({
+                content: contentString2
+            });
+            google.maps.event.addListener(infowindow, 'closeclick', function(){
+                marker.setAnimation(null);
+            });
+            google.maps.event.addListener(marker, 'click', function(){
+                infowindow.open(map,marker);
+                marker.setAnimation(google.maps.Animation.BOUNCE);   
+            })
+        })(marker);
+        markers.push(marker);
+    <% end %>
+    markerclusterer = new MarkerClusterer(map, markers, mcOptions);
+    var infowindowot = new google.maps.InfoWindow({});
+    var markertemp = [];
+    google.maps.event.addListener(map, 'rightclick', function(event) {
+        for(var i=0; i<markertemp.length; i++){
+            markertemp[i].setMap(null);
+        }
+        if(temp == 1){
+            var images = 'image.png';
+        }
+        else if(temp == 2){
+            var images = 'images2.jpg';
+        }
+        else{
+            var images = 'images3.jpg';
+        }
+        
+        startLocation = event.latLng;
+        var mark = new google.maps.Marker({
+          position: startLocation,
+          map: map
+        });
+        //mark.setIcon(images);
+        mark.setAnimation(google.maps.Animation.BOUNCE);
+        var contentString = '<div id="infobox">'+
+                            '<div class="title"><h1>MY TRIP</h1></div>'+
+                            '<%=form_tag '/make', method:'post' do %><div class="form-group"><label for="comment">Title:</label><textarea name="tit" class="form-control" row="1"></textarea></div><div class="form-group"><label for="comment">Content:</label><textarea name="con" class="form-control" row="4"></textarea></div>'+
+                            '<div class="btn-group">'+
+                            
+                            '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                            'Your Feeling <span class="caret"></span>'+
+                            '</button>'+
+                            '<ul class="dropdown-menu">'+
+                            '<li><input type="radio" name="btntype" value="1" onclick="abling()">Good</li>'+
+                            '<li><input type="radio" name="btntype" value="2" onclick="abling()">Soso</li>'+
+                            '<li><input type="radio" name="btntype" value="3" onclick="abling()">Bad</li>'+
+                            '</ul>'+
+                            '</div>'+
+                            '<input type="hidden" name="time" value=<%=Time.now%>>'+
+                            '<input type="hidden" name="latitude" value='+
+                            startLocation.lat()+
+                            '><input type="hidden" name="longitude" value='+
+                            startLocation.lng()+
+                            '>'+
+                            '<br>'+
+                            '<input id="sum" type="submit" class="btn btn-success" disabled><% end %></div>';
+                            
+        infowindowot.setContent(contentString);
+        google.maps.event.addListener(infowindowot, 'closeclick', function(){
+            mark.setMap(null);
+            
+        });
+        infowindowot.open(map, mark, contentString);
+        markertemp.push(mark);
+        
+    });
+}
+</script>
+
+
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2xWsRsM--vAOE_I9dv-ljLh-nO6IU0pU&signed_in=false&libraries=places&callback=initMap"></script>
