@@ -10,6 +10,8 @@
     </div>
 </div>
 
+
+
 <!-- search box -->
 <div id="content">
     <input id="pac-input" class="controls" type="text" placeholder="Search Box">        
@@ -42,6 +44,7 @@
             }            
         </script>
     <% end %>
+
 </div>
 
 <!-- JEONBYULJUN Corp.-->
@@ -101,18 +104,20 @@
 
 <!-- Main Map FUNCTION -->
 <script>
-    var temp = 1;
-    function handleClick(type){
-        temp = type.value;
-    }
-    function abling(){
+
+
+    function abling(val){
         document.getElementById('sum').disabled = false;
+        document.getElementById('btnvalue').value = val;
     }
 
     // This example displays a marker at the center of Australia.
     // When the user clicks the marker, an info window opens.
     var mapCanvas = document.getElementById('map');
-
+    var temp = 1;
+    function handleClick(type){
+        temp = type.value;
+    }
     function initMap() {
     
         mcOptions = {styles: [{
@@ -198,7 +203,7 @@
     map.fitBounds(bounds);
     });
     
-    
+    var infoBubbleArray = [];
     // view icons
     <% @memos.each_with_index do |p ,i| %>
         if(<%=p.button%> == 1){
@@ -216,16 +221,14 @@
             position: {lat: <%=p.lat%>, lng: <%=p.lng%>},
             animation: google.maps.Animation.DROP,
         });
-        
+        //show
         (function(marker){
 
             var tt = "<%=p.title%>"
             var tc = "<%=p.content%>"
             var ttr = tt.replace(/&lt;br&gt;/g,"\r\n")
             var tcr = tc.replace(/&lt;br&gt;/g,"\r\n")
-            var contentString2 = 
-            //'<div id="infoBubble">'+
-            '<p class="temp">Title:</p>'+
+            var contentString2 = '<p class="temp">Title:</p>'+
             '<div id="wrapper" class="container">'+
             ttr +
              '</div>'+
@@ -251,10 +254,13 @@
             google.maps.event.addListener(infoBubble, 'closeclick', function(){
                 marker.setAnimation(null);
             });
+            infoBubbleArray.push(infoBubble);
+            var newinfoBubble = infoBubbleArray[<%=i%>];
             google.maps.event.addListener(marker, 'click', function(){
-                infoBubble.open(map,marker);
+                newinfoBubble.open(map,marker);
                 marker.setAnimation(google.maps.Animation.BOUNCE);   
-            })
+            });
+
         })(marker);
         markers.push(marker);
     <% end %>
@@ -289,20 +295,37 @@
         });
         //mark.setIcon(images);
         mark.setAnimation(google.maps.Animation.BOUNCE);
-
+        var temp = '<button>hunjun</button>';
+        var str = "";
+        for(var i=1; i<4; i++){
+            str += '<input type="radio" name="btnt" value="'+i+'" onclick="abling('+i+')">index'+i+'<br>'
+        }
         var contentString = //'<div id="infoBubble2">'+
                             '<div class="title"><h1>MY TRIP</h1></div>'+
                             '<%=form_tag '/make', method:'post' do %><div class="form-group"><label for="comment">Title:</label><textarea name="tit" class="form-control" row="1"></textarea></div><div class="form-group"><label for="comment">Content:</label><textarea name="con" class="form-control" row="4"></textarea></div>'+
-                            '<div class="btn-group">'+
-                            
-                            '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
-                            'Your Feeling <span class="caret"></span>'+
-                            '</button>'+
-                            '<ul class="dropdown-menu">'+
-                            '<li><input type="radio" name="btntype" value="1" onclick="abling()">Good</li>'+
-                            '<li><input type="radio" name="btntype" value="2" onclick="abling()">Soso</li>'+
-                            '<li><input type="radio" name="btntype" value="3" onclick="abling()">Bad</li>'+
-                            '</ul>'+
+
+                            /*
+                            '<button type="button" class="btn btn-success" data-toggle="modal" data-target="#infomodal">Open Small Modal</button>'+
+                              '<div class="modal fade" id="infomodal" role="dialog">'+
+                                '<div class="modal-dialog modal-sm">'+
+                                  '<div class="modal-content">'+
+                                    '<div class="modal-header">'+
+                                      '<button type="button" class="close" data-dismiss="modal">&times;</button>'+
+                                      '<h4 class="modal-title">Modal Header</h4>'+
+                                    '</div>'+
+                                    '<div class="modal-body">'+
+                                      str+
+                                    '</div>'+
+                                    '<div class="modal-footer">'+
+                                      '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+                                    '</div>'+
+                                  '</div>'+
+                                '</div>'+
+                              '</div>'+
+                            */
+                            '<div class="container">'+
+                              '<h6>Choose Feeling</h6>'+
+                              '<button type="button" class="btn btn-success" id="infob">Click me</button>'+
                             '</div>'+
                             '<input type="hidden" name="time" value=<%=Time.now%>>'+
                             '<input type="hidden" name="latitude" value='+
@@ -310,12 +333,14 @@
                             '><input type="hidden" name="longitude" value='+
                             startLocation.lng()+
                             '>'+
+                            '<input id="btnvalue" type="hidden" name="btntype", value="1">'+
                             '<br>'+
                             '<input id="sum" type="submit" class="btn btn-success" disabled><% end %>';
                             //'</div>';
         
         infoBubble1 = new InfoBubble({
             maxWidth: 350,
+            minWidth: 350,
             backgroundColor: 'rgb(200,255,255)',
             borderColor: '#2c2c2c',
             shadowStyle: 2
@@ -337,7 +362,11 @@
             backgroundClassName: 'phoney',
             arrowStyle: 2
         });*/
-
+        google.maps.event.addListener(infoBubble1, 'domready', function(){
+            $(document).ready(function(){
+                $('#infob').popover({title: "Choose Feeling", content: str,html: true, placement: "right"});  
+            }); 
+        });
         google.maps.event.addListener(infoBubble1, 'closeclick', function(){
             mark.setMap(null);
         });
