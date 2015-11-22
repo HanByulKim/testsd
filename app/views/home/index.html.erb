@@ -335,6 +335,13 @@
                             '>'+
                             '<input id="btnvalue" type="hidden" name="btntype", value="1">'+
                             '<br>'+
+                            '<div class="container">'+
+                            '<div class="row">'+
+                            '<div class="col-sm-3">'+
+                            '<input type="text" class="form-control" id="datetimepicker4" />'+
+                            '</div>'+
+                            '</div>'+
+                            '</div>'+
                             '<input id="sum" type="submit" class="btn btn-success" disabled><% end %>';
                             //'</div>';
         
@@ -366,6 +373,7 @@
             $(document).ready(function(){
                 $('#infob').popover({title: "Choose Feeling", content: str,html: true, placement: "right"});  
             }); 
+            $(function () {$('#datetimepicker4').datetimepicker();});
         });
         google.maps.event.addListener(infoBubble1, 'closeclick', function(){
             mark.setMap(null);
